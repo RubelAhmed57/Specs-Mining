@@ -1,5 +1,6 @@
 print("Basic step: specs Mining!")
-
+from itertools import groupby
+from collections import Counter
 import re
 count = 0
 events = []
@@ -8,17 +9,30 @@ fresh = []
 file = [x.split(' ')[0] for x in open('abstract_trace.txt').readlines()]
 #print(file)
 for event in file:
-    events.append(int(" ".join(str(x) for x in re.findall(r'\d+', event)))) #converting list to string
+    events.append(int(" ".join(str(x) for x in re.findall(r'\d+', event)))) #converting list to string to find event list
 
-for event in range(0,max(events)+1):  #finding freq of each event
-    freq_list.append(events.count(event))
-
-for event in range(len(events)):
-        if (events[event] == 0) and (events[event+1] == 1):
-            count = count + 1
+event_freq = Counter(events)
+# for event in range(0,max(events)+1):  #finding freq of each event
+#     freq_list.append(events.count(event))
 
 
-print(count, 7)
+myDict = {}
+for i in range(0,len(events)-3210):# -1 default
+    temp=[]
+    for j in range(0,len(events)):
+        #print(i,j)
+        if events[j] == events[i] or events[j] == events[i+1]:
+            temp.append(events[j])
+
+
+
+
+# for event in range(len(events)):
+#         if (events[event] == 0) and (events[event+1] == 1):
+#             count = count + 1
+
+
+# print(count)
 #print(fresh)
 
 # with open('abstract_trace.txt') as f:
