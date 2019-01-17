@@ -18,7 +18,7 @@ for event in range(len(events)):
             count = count + 1
 
 
-print(count)
+print(count, 7)
 #print(fresh)
 
 # with open('abstract_trace.txt') as f:
