@@ -180,7 +180,9 @@ for rule in confidence:
 def Fw_recur(root, depth): # B
     stack.append(root)
     for rule in rule_2_high_Cf: # for each rule in B->X
-            if (stack[-1] == rule[0]) and (confidence[rule][0] == 1 or confidence[rule][1] == 1) and depth <10: # or confidence[rule][1] == 1
+            dest = map[root][1].replace(" ","")
+            src = map[rule[1]][0].replace(" ","")
+            if (stack[-1] == rule[0]) and (confidence[rule][0] == 1 or confidence[rule][1] == 1) and depth <20 and (rule[1] not in stack) and src == dest: # or confidence[rule][1] == 1
                 depth += 1
                 Fw_recur(rule[1],depth)
     print(stack)
@@ -190,6 +192,7 @@ def Fw_recur(root, depth): # B
 def Bc_recur(root, depth): # A
     stack.append(root)
     for rule in rule_2_high_Cf: # for each rule in B->X
+
             if (stack[-1] == rule[1]) and (confidence[rule][1] == 1) and depth <3: #confidence[rule][0] == 1 or
                 depth += 1
                 Bc_recur(rule[0],depth)
@@ -198,12 +201,15 @@ def Bc_recur(root, depth): # A
 
 # print(rule_2_high_Cf)
 for rule1 in rule_2_high_Cf:
-    depth = 0
-    print("Prefix: ",rule1[0])
-    Fw_recur(rule1[1],depth)
-    stack = []
-    print("suffix: ", rule1[0])
-    Bc_recur(rule1[0], depth)
+    if(rule1[0] in [0,1,2,3,4,5,6]):
+        depth = 0
+        print("Prefix: ",rule1[0])
+        Fw_recur(rule1[1],depth)
+        stack = []
+        print("suffix: ", rule1[0])
+        Bc_recur(rule1[0], depth)
+    else:
+        break
 
     # for rule2 in rule_2_high_Cf: # forward rules
     #     if(rule1[1] == rule2[0]):
