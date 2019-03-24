@@ -13,6 +13,9 @@ rule_support ={}
 confidence = {}
 input_length = 2
 stack = []
+last_rule_lenth1 = 0 # to prevent adding suffix rules
+last_rule_lenth2 = 0 # to prevent adding suffix rules
+base = []
 #[[0, 1], [38, 39, 42, 6], [1, 0], [2, 3], [10], [10], [10, 7, 8], [10], [2, 3]]
 #**************************Making data ready for mining(prepocessing)***************************
 # Mapping for event number to msgs
@@ -173,43 +176,72 @@ for key in rule_support:
 rule_2_high_Cf = []
 
 for rule in confidence:
-    if(confidence[rule][0] == 1 or confidence[rule][1] == 1):
+    dest = map[rule[0]][1].replace(" ", "")
+    src = map[rule[1]][0].replace(" ", "")
+    if(confidence[rule][0] == 1.00 or confidence[rule][1] == 1):# and dest == src:
         rule_2_high_Cf.append(rule)
 
+f= open("rules_all1.txt","w+")
 
 def Fw_recur(root, depth): # B
     stack.append(root)
+    global last_rule_lenth1, base
     for rule in rule_2_high_Cf: # for each rule in B->X
             dest = map[root][1].replace(" ","")
             src = map[rule[1]][0].replace(" ","")
-            if (stack[-1] == rule[0]) and (confidence[rule][0] == 1 or confidence[rule][1] == 1) and depth <20 and (rule[1] not in stack) and src == dest: # or confidence[rule][1] == 1
+            if (stack[-1] == rule[0]) and depth <10 and (confidence[rule][0] == 1 or confidence[rule][1] == 1) and (rule[1] not in stack) and (src == dest): # or confidence[rule][1] == 1 or
                 depth += 1
                 Fw_recur(rule[1],depth)
-    print(stack)
-    stack.pop()
+    if len(stack)>= last_rule_lenth1:
+        last_rule_lenth1 = len(stack)
+        rule = base + stack
+        f.write(str(rule)+"\n")
+        # with open('rules_all.txt', 'a') as f:
+        #     print(stack, file=f)
+        #print(stack)
+        stack.pop()
+    else:
+        last_rule_lenth1 = len(stack)
+        stack.pop()
 
-
+stack = []
 def Bc_recur(root, depth): # A
     stack.append(root)
+    global last_rule_lenth2, base
     for rule in rule_2_high_Cf: # for each rule in B->X
-
-            if (stack[-1] == rule[1]) and (confidence[rule][1] == 1) and depth <3: #confidence[rule][0] == 1 or
+            src = map[root][0].replace(" ", "")
+            dest = map[rule[1]][1].replace(" ", "")
+            if (stack[-1] == rule[1]) and (confidence[rule][1] == 1 or confidence[rule][0] == 1) and depth <5 and (rule[0] not in stack): #confidence[rule][0] == 1 or
                 depth += 1
-                Bc_recur(rule[0],depth)
-    print(stack)
-    stack.pop()
+                Bc_recur(rule[0], depth)
 
-# print(rule_2_high_Cf)
+    if len(stack)>= last_rule_lenth2:
+        last_rule_lenth2 = len(stack)
+        rule = base + stack
+        f.write(str(stack)+"\n")
+        stack.pop()
+    else:
+        last_rule_lenth2 = len(stack)
+        stack.pop()
+
+print(rule_2_high_Cf)
 for rule1 in rule_2_high_Cf:
-    if(rule1[0] in [0,1,2,3,4,5,6]):
+    # dest = map[rule1[0]][1].replace(" ", "")
+    # src = map[rule[1]][0].replace(" ", "")
+    #if(rule1[0] in ): #and src == dest:
         depth = 0
-        print("Prefix: ",rule1[0])
+        base = [rule1[0]] #base is the current seed being grown, is it being added to enhance readability
+        # f.write(str(rule1[0])+ " :")
+        # print("Prefix: ",rule1[0], end=" ")
+        f.write("grow forward:  " + "\n")
         Fw_recur(rule1[1],depth)
         stack = []
-        print("suffix: ", rule1[0])
+        f.write("grow back: " + "\n")
+        # f.write(str(rule1[1])+ " :")
         Bc_recur(rule1[0], depth)
-    else:
-        break
+f.close()
+    # else:
+    #     break
 
     # for rule2 in rule_2_high_Cf: # forward rules
     #     if(rule1[1] == rule2[0]):
