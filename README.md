@@ -1,0 +1,2 @@
+# Specs-Mining
+Basic works
