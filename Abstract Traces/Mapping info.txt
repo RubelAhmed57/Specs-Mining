@@ -1,0 +1,80 @@
+Mapping b/w abstract and msgs
+
+0 : cpu0:cache0:wt
+1 : cpu1:cache1:wt
+2 : cpu0:cache0:rd
+3 : cpu1:cache1:rd
+4 : gfx:membus:upwt
+5 : audio:membus:upwt
+6 : usb:membus:uprd
+7 : cache1:cache0:wtreq 
+8 : cache0:cache1:wtreq 
+9 : membus:cache0:wtreq 
+10 : membus:cache0:rdreq 
+11 : cache0:cache1:wtres 
+12 : cache1:cache0:wtres 
+13 : cache0:membus:wt 
+14 : cache1:membus:wt 
+15 : membus:mem:rd 
+16 : cache1:cache0:rdreq 
+17 : cache0:cache1:rdreq 
+18 : cache0:membus:wtres 
+19 : cache1:cache0:rdres 
+20 : cache0:cache1:rdres 
+21 : cache0:membus:rd 
+22 : cache1:membus:rd 
+23 : mem:membus:rd 
+24 : membus:cache0:wt 
+25 : cache0:cpu0:wt 
+26 : cache0:cpu0:rd 
+27 : cache0:membus:rdres 
+28 : membus:cache1:wt 
+29 : cache1:cpu1:wt 
+30 : membus:cache0:rd 
+31 : membus:cache1:rd 
+32 : cache1:cpu1:rd 
+33 : membus:mem:wt 
+34 : mem:membus:wt 
+35 : membus:gfx:upwt 
+36 : membus:audio:upwt
+37 : membus:usb:uprd
+38 : gfx:membus:uprd
+39 : audio:membus:uprd
+40 : membus:gfx:uprd
+41 : membus:audio:uprd
+
+
+***CPU0_Read*******
+2->26
+2->17->19->26
+2->17->19->21->15->23->30->26
+
+***CPU1_Read*******
+3->32
+3->16->20->32
+3->16->20->22->15->23->31->32
+
+***CPU0_Write*******
+0->25
+0->8->12->25
+0->8->12->13->15->23->24->25
+
+***CPU1_Write*******
+1->29
+1->7->11->29
+1->7->11->14->15->23->28->29
+
+****audio_upstream_write******
+5->9->18->35
+5->9->8->12->18->35
+5->9->8->12->18->33->34->35
+
+****GFX_upstream_write******
+4->9->18->36
+4->9->8->12->18->36
+4->9->8->12->18->33->34->36
+
+****usb_upstream_read******
+6->10->27->37
+6->10->17->19->27->37
+6->10->17->19->27->15->23->37

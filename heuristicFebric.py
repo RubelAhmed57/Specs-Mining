@@ -13,9 +13,11 @@ rule_support ={}
 confidence = {}
 input_length = 2
 stack = []
+
 last_rule_lenth1 = 0 # to prevent adding suffix rules
 last_rule_lenth2 = 0 # to prevent adding suffix rules
 base = []
+counter = 0
 #[[0, 1], [38, 39, 42, 6], [1, 0], [2, 3], [10], [10], [10, 7, 8], [10], [2, 3]]
 #**************************Making data ready for mining(prepocessing)***************************
 # Mapping for event number to msgs
@@ -26,7 +28,7 @@ with open("Mapping info.txt", "r", encoding='utf-8-sig') as fileobj:
       map[int(temp[0])] = temp[1:]
 
 
-with open("2.tstt.mem.txt", "r", encoding='utf-8-sig') as fileobj:
+with open("1.tstt_pr.txt", "r", encoding='utf-8-sig') as fileobj:
   for line in fileobj:
       temp = line.split("-1")
       for _ in temp:
@@ -173,73 +175,71 @@ for key in rule_support:
 #
 # print("reduced: ",ppp)
 
-rule_2_high_Cf = []
+rules = []
 
 for rule in confidence:
     dest = map[rule[0]][1].replace(" ", "")
     src = map[rule[1]][0].replace(" ", "")
-    if(confidence[rule][0] == 1.00 or confidence[rule][1] == 1):# and dest == src:
-        rule_2_high_Cf.append(rule)
+    if(confidence[rule][0] == 1.00 or confidence[rule][1] == 1) and dest == src:
+        rules.append(rule)
 
-f= open("rules_all1.txt","w+")
+f= open("rules_for_trace_3x.txt","w")
 
 def Fw_recur(root, depth): # B
     stack.append(root)
-    global last_rule_lenth1, base
-    for rule in rule_2_high_Cf: # for each rule in B->X
-            dest = map[root][1].replace(" ","")
-            src = map[rule[1]][0].replace(" ","")
-            if (stack[-1] == rule[0]) and depth <10 and (confidence[rule][0] == 1 or confidence[rule][1] == 1) and (rule[1] not in stack) and (src == dest): # or confidence[rule][1] == 1 or
+    global last_rule_lenth1, base, counter
+    for rule in rules: # for each rule in B->X                                                                               #confidence                   #recall
+            if (stack[-1] == rule[0]) and depth <10 and (rule[1] not in stack): # or confidence[rule][1] == 1 or and (confidence[rule][0] == 1 or confidence[rule][1] == 1)
                 depth += 1
                 Fw_recur(rule[1],depth)
+
     if len(stack)>= last_rule_lenth1:
         last_rule_lenth1 = len(stack)
         rule = base + stack
-        f.write(str(rule)+"\n")
+        counter =  counter +1
+        f.write(str(counter)+str(": ")+str(rule)+"\n")
         # with open('rules_all.txt', 'a') as f:
         #     print(stack, file=f)
         #print(stack)
         stack.pop()
+        # depth =  depth - 1
     else:
         last_rule_lenth1 = len(stack)
         stack.pop()
+        # depth = depth - 1
 
-stack = []
-def Bc_recur(root, depth): # A
-    stack.append(root)
-    global last_rule_lenth2, base
-    for rule in rule_2_high_Cf: # for each rule in B->X
-            src = map[root][0].replace(" ", "")
-            dest = map[rule[1]][1].replace(" ", "")
-            if (stack[-1] == rule[1]) and (confidence[rule][1] == 1 or confidence[rule][0] == 1) and depth <5 and (rule[0] not in stack): #confidence[rule][0] == 1 or
-                depth += 1
-                Bc_recur(rule[0], depth)
+# stack = []
+# def Bc_recur(root, depth): # A
+#     stack.append(root)
+#     global last_rule_lenth2, base
+#     for rule in rule_2_high_Cf: # for each rule in B->X
+#             src = map[root][0].replace(" ", "")
+#             dest = map[rule[1]][1].replace(" ", "")
+#             if (stack[-1] == rule[1]) and (confidence[rule][1] == 1 or confidence[rule][0] == 1) and depth <10 and (rule[0] not in stack): #confidence[rule][0] == 1 or
+#                 depth += 1
+#                 Bc_recur(rule[0], depth)
+#
+#     if len(stack)>= last_rule_lenth2:
+#         last_rule_lenth2 = len(stack)
+#         rule = base + stack
+#         f.write(str(list(reversed(stack)))+"\n")
+#         stack.pop()
+#     else:
+#         last_rule_lenth2 = len(stack)
+#         stack.pop()
 
-    if len(stack)>= last_rule_lenth2:
-        last_rule_lenth2 = len(stack)
-        rule = base + stack
-        f.write(str(stack)+"\n")
-        stack.pop()
-    else:
-        last_rule_lenth2 = len(stack)
-        stack.pop()
+print(rules)
+# for rule in rule_2_high_Cf:
+#     if(rule[0] in [0,1]): #and src == dest:
+#         depth = 0
+#         base = [rule[0]] #base is the current seed being grown, is it being added to enhance readability
+#         Fw_recur(rule[1],depth)
+#         # stack = []
+#         # f.write("grow back: " + "\n")
+#         # # f.write(str(rule1[1])+ " :")
+#         # Bc_recur(rule1[0], depth)
+# f.close()
 
-print(rule_2_high_Cf)
-for rule1 in rule_2_high_Cf:
-    # dest = map[rule1[0]][1].replace(" ", "")
-    # src = map[rule[1]][0].replace(" ", "")
-    #if(rule1[0] in ): #and src == dest:
-        depth = 0
-        base = [rule1[0]] #base is the current seed being grown, is it being added to enhance readability
-        # f.write(str(rule1[0])+ " :")
-        # print("Prefix: ",rule1[0], end=" ")
-        f.write("grow forward:  " + "\n")
-        Fw_recur(rule1[1],depth)
-        stack = []
-        f.write("grow back: " + "\n")
-        # f.write(str(rule1[1])+ " :")
-        Bc_recur(rule1[0], depth)
-f.close()
     # else:
     #     break
 
@@ -256,6 +256,47 @@ f.close()
         #         # temp = temp.append(int(rule2[1]))
         #         print(rule1[0],rule1[1],rule2[1])
 
+# nodes = []
+visit = []
+def Traverse(root, depth, visit):
+    global counter
+    if (depth == global_depth):
+        # last_node = 0
+        # print("extra")
+        # print(visit)
+        counter = counter + 1
+        f.write(str(counter) + str(": ") + str(visit) + "\n")
+            # last_node = x
+        # visit.remove(last_node)
+        return
+    # print(root)
+    noNewNode = 1
+    for rule in rules:
+        node = rule[1]
+        # print("visiting : " + str(rule[0]))
+        if ( node not in visit and rule[0] == root):
+            visit.append(node)
+            noNewNode = 0
+            Traverse(node, depth+1, visit)
+            visit.remove(node)
 
+    if (noNewNode == 1):
+        # print(visit)
+        # counter = counter + 1
+        # f.write(str(counter) + str(" bound out: ") + str(rule) + "\n")
+        # print("End\n")
+        pass
 
+## This is the MAX DEPTH
+global_depth = 8
+
+for rule in rules:
+    if(rule[0] in [0, 1]):  # and src == dest:
+        visit.append(rule[0])
+        visit.append(rule[1])
+        base = [rule[0]]  # base is the current seed being grown, is it being added to enhance readability
+        # Traverse(rule[1], 2, visit)
+        visit.remove(rule[1])
+        visit.remove(rule[0])
+f.close()
 
